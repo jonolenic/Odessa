@@ -1,0 +1,317 @@
+package inventory;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.File;
+import java.util.LinkedList;
+import java.util.Iterator;
+import java.util.ListIterator;
+
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+
+import market.*;
+import odessaInterface.ExeStatus;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import calculations.CostCalculations;
+
+/*
+ * The inventory is a linked list of InventoryMaterials. It holds a certain number of all raw materials in a linked list
+ *  and is manipulated by Odessa during cost analysis and calculations to see if materials requested from a mix can be
+ *  provided or not.
+ */
+public class Inventory {
+	
+	private LinkedList<InventoryMaterial> InventoryList = new LinkedList();		
+	
+	public LinkedList<InventoryMaterial> getInventoryList() {
+		return InventoryList;
+	}
+
+	public void setInventoryList(LinkedList<InventoryMaterial> inventoryList) {
+		InventoryList = inventoryList;
+	}
+	
+	//Accepts a filename to load a linked list
+public void loadInv(String filename) throws ClassNotFoundException {
+		
+		try {
+    		   		
+    		FileInputStream inputStream = new FileInputStream(new File(filename));
+    		Workbook workbook = new XSSFWorkbook(inputStream);
+    		Sheet sheet = (Sheet) workbook.getSheetAt(0);
+    		Iterator iterator = sheet.iterator();
+    		
+    		
+    		
+    		while (iterator.hasNext()) {
+    			Row nextRow = (Row) iterator.next();
+    			if(nextRow.getRowNum()==0)
+    			    continue;
+    			
+    			InventoryMaterial inventoryMaterial = new InventoryMaterial();
+    			Iterator cellIterator = nextRow.cellIterator();
+    			
+    			while (cellIterator.hasNext()) {
+    			    Cell cell = (Cell) cellIterator.next();
+    			    int columnIndex=cell.getColumnIndex();
+    			    switch (columnIndex+1) {
+    			    case 1:
+    			     inventoryMaterial.setMatNum(cell.getNumericCellValue());
+    			     break;
+    			    case 2:
+    			     inventoryMaterial.setDescription(cell.getStringCellValue());
+    			     break;
+    			    case 3:
+       			     inventoryMaterial.setScrap(cell.getStringCellValue());
+       			     break;
+    			    case 4:
+       			     inventoryMaterial.setCategory(cell.getStringCellValue());
+       			     break;
+    			    case 5:
+    			     inventoryMaterial.setCost(cell.getNumericCellValue());
+    			     break;
+    			    case 6:
+       			     inventoryMaterial.setQuantity(cell.getNumericCellValue());
+       			     break;
+    			    case 7:
+       			     inventoryMaterial.setUsage(cell.getNumericCellValue());
+       			     break;
+    			    }
+    			    
+    			   }
+    			   InventoryList.add(inventoryMaterial);
+    			
+    			
+    			 
+    			
+    		}	 
+    		 workbook.close();
+    		 inputStream.close();
+    		 
+    		 
+    	}
+		catch(IOException e) {
+			
+    		e.printStackTrace();
+    		return;
+    	}
+		
+	}
+	
+	//Accepts a list name to save to a filename with the .dat extension
+	public void saveInv(Object listName, String filename){
+		
+		try {
+	        
+			FileOutputStream fileOut = new FileOutputStream(filename + ".dat" );
+	        ObjectOutputStream out = new ObjectOutputStream(fileOut);
+	        out.writeObject(listName);
+	        out.close();
+	        fileOut.close();
+	        //System.out.printf("data saved");
+	    
+		}
+		catch(IOException i) {
+	         
+			i.printStackTrace();
+	    
+		}	
+		
+	}
+	
+	
+	
+	
+	
+		
+	//Adds a new material to inventory with quantity and cost
+	public void addInvItem(double matNum, double quantity, float cost) {
+			
+			InventoryMaterial newMaterial = new InventoryMaterial();
+			
+			newMaterial.setCost(cost);
+			newMaterial.setQuantity(quantity);
+			newMaterial.setMatNum(matNum);	
+						
+			InventoryList.add(newMaterial);
+			
+	}
+	
+	public void addInvItem(double matNum, String description, String scrap, String category, double cost, double quantity, float usage, double tolerance) {
+			InventoryMaterial newMaterial = new InventoryMaterial();
+			
+			newMaterial.setMatNum(matNum);
+			newMaterial.setDescription(description);
+			newMaterial.setScrap(scrap);
+			newMaterial.setCategory(category);
+			newMaterial.setCost(cost);
+			newMaterial.setQuantity(quantity);
+			newMaterial.setUsage(usage);
+			newMaterial.setTolerance(tolerance);
+			
+			InventoryList.add(newMaterial);
+	}
+	
+		
+	
+	//Removes a material from inventory based upon material number
+	public void remInvItem(double matNum) {
+		
+		
+	}
+	
+	
+	//Overwrites material cost of a certain material number
+	public void editMatCost(int MatNum, double cost) {
+		
+	}
+	
+	
+	//Overwrites material quantity of a certain material number
+	public void editMatQuantity(int MatNum, double quantity) {
+		
+		
+	}
+	
+	/*
+	 * Attempts to retrieve a material from the inventory, accounting for tolerance 
+	 * If there is not enough material left in the inventory, the material is pulled from the market instead
+	 */
+	public double obtainMaterial(double num, double quantity, Market market) {
+		int i = 0;
+		ExeStatus console = CostCalculations.getConsole();
+		Document doc = CostCalculations.getConsole().getText().getDocument();
+		// Search for material in inventory
+		while (InventoryList.get(i).getMatNum() <= num) {
+			if (InventoryList.get(i).getMatNum() == num) {
+				System.out.println("Quantity of material in inventory: " + InventoryList.get(i).getQuantity());
+				try { 
+					console.getText().getDocument().insertString(doc.getLength(), "\nQuantity of material in inventory: " + InventoryList.get(i).getQuantity(), null);
+					   } catch(BadLocationException exc) {
+						      exc.printStackTrace();
+						   }
+				double quantityWithTol = (quantity - (quantity * (InventoryList.get(i).getTolerance())));
+				
+				// If there is not enough material in the inventory, go to the market
+				if (InventoryList.get(i).getQuantity() < quantity && InventoryList.get(i).getQuantity() < quantityWithTol) {
+					System.out.println("Not enough material in inventory, accessing market");
+					try { 
+						console.getText().getDocument().insertString(doc.getLength(), "\nNot enough material in inventory, accessing market", null);
+						   } catch(BadLocationException exc) {
+							      exc.printStackTrace();
+							   }
+					return market.passCost(i);
+				}
+				
+				break;
+			}
+			
+			i++;
+		}
+		
+		double quantityWithTol = (quantity - (quantity * (InventoryList.get(i).getTolerance())));
+		
+		// Updates material quantity after it is pulled and returns the cost
+		if (InventoryList.get(i).getQuantity() < quantity && InventoryList.get(i).getQuantity() > quantityWithTol) {
+			System.out.println("The old quantity for this material is: " + InventoryList.get(i).getQuantity());
+			try { 
+				console.getText().getDocument().insertString(doc.getLength(), "\nThe old quantity for this material is: " + InventoryList.get(i).getQuantity(), null);
+				   } catch(BadLocationException exc) {
+					      exc.printStackTrace();
+					   }
+			double subtractThis = InventoryList.get(i).getQuantity() - quantityWithTol;
+			InventoryList.get(i).setQuantity(subtractThis);
+			System.out.println("The new quantity for this material is: " + InventoryList.get(i).getQuantity());
+			try { 
+				console.getText().getDocument().insertString(doc.getLength(), "\nThe new quantity for this material is: " + InventoryList.get(i).getQuantity(), null);
+				   } catch(BadLocationException exc) {
+					      exc.printStackTrace();
+					   }
+			return InventoryList.get(i).getCost();
+		}
+		
+		System.out.println("The old quantity for this material is: " + InventoryList.get(i).getQuantity());
+		try { 
+			console.getText().getDocument().insertString(doc.getLength(), "\nThe old quantity for this material is: " + InventoryList.get(i).getQuantity(), null);
+			   } catch(BadLocationException exc) {
+				      exc.printStackTrace();
+				   }
+		double subtractThis = InventoryList.get(i).getQuantity() - quantity;
+		InventoryList.get(i).setQuantity(subtractThis);
+		System.out.println("The new quantity for this material is: " + InventoryList.get(i).getQuantity());
+		try { 
+			console.getText().getDocument().insertString(doc.getLength(), "\nThe new quantity for this material is: " + InventoryList.get(i).getQuantity(), null);
+			   } catch(BadLocationException exc) {
+				      exc.printStackTrace();
+				   }
+		return InventoryList.get(i).getCost();
+	}
+	
+	/*
+	 * Checks whether a mix is able to be made from inventory or not
+	 * If the materials cannot be found in inventory, returns a 0 for the cost signifying the mix cannot be made
+	 */
+	public double checkMixViability(double num, double quantity) {
+		int i = 0;
+		while (InventoryList.get(i).getMatNum() <= num) {
+			if (InventoryList.get(i).getMatNum() == num) {
+				double quantityWithTol = (quantity - (quantity * (InventoryList.get(i).getTolerance())));
+				
+				if (InventoryList.get(i).getQuantity() < quantity && InventoryList.get(i).getQuantity() < quantityWithTol) {
+					return 0;
+				}
+				break;
+			}		
+			i++;
+		}
+		return InventoryList.get(i).getCost();
+	}
+	
+	
+	// Updates the final inventory file with the values of another inventory
+	public void updateInventory(Inventory placeholderInv) {
+		for (int i = 0; i < InventoryList.size(); i++) {
+			double newQuantity = placeholderInv.getMaterialQuantity(i);
+			InventoryList.get(i).setQuantity(newQuantity);
+		}
+	}
+	
+	// Returns the quantity of a desired material
+	public double getMaterialQuantity(int num) {
+		return InventoryList.get(num).getQuantity();
+	}
+	
+	// Returns the material number of a desired material
+	public double getMaterialNumber(double num) {
+		return InventoryList.get((int) num).getMatNum();
+	}
+	
+	// Returns the cost of a desired material
+	public double getMaterialCost(double num) {
+		return InventoryList.get((int) num).getCost();
+	}
+	
+	public void display() {
+
+		for(Object o: InventoryList){
+			o.toString();
+
+		}
+
+	}
+
+	
+		
+	
+	
+}

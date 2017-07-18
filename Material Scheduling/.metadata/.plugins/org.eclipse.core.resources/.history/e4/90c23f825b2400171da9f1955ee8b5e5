@@ -1,0 +1,231 @@
+package odessaInterface;
+
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.JTextField;
+import java.awt.GridLayout;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.io.IOException;
+import java.util.LinkedList;
+
+import javax.swing.JRadioButton;
+import javax.swing.JEditorPane;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JButton;
+import javax.swing.JTextPane;
+import javax.swing.ListModel;
+import javax.swing.JTable;
+import javax.swing.JScrollPane;
+import javax.swing.table.DefaultTableModel;
+
+import processing.ReadExcel;
+
+import java.awt.Color;
+import java.awt.Dimension;
+
+import javax.swing.border.MatteBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.JScrollBar;
+import javax.swing.ListSelectionModel;
+
+public class StatReportU extends JFrame {
+
+	private JPanel contentPane;
+	private JTextField selectedGrade;
+	private JTextField textField_1;
+	private JTextField textField_2;
+	private JTextField textField_3;
+	private JList list;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					StatReportU frame = new StatReportU();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 * @throws IOException 
+	 */
+	public StatReportU() throws IOException {
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 920, 633);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
+		
+		
+		Object[] gradeList = ReadExcel.getGradeNums();
+		list = new JList(gradeList);
+		list.setBounds(6, 21, 104, 375);
+		contentPane.add(list);
+		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		list.setBackground(Color.WHITE);
+		//table.setCellSelectionEnabled(true);
+		list.setBorder(new MatteBorder(1, 1, 1, 1, (Color) new Color(0, 0, 0)));
+		list.setForeground(Color.BLACK);
+		list.addListSelectionListener(new ListSelectionListener() {
+
+	        @Override
+	        public void valueChanged(ListSelectionEvent arg0) {
+	        	selectedGrade.setText(list.getSelectedValue().toString());
+	        }
+	    });
+		
+		JLabel lblNewLabel = new JLabel("Selected Grade");
+		lblNewLabel.setBounds(6, 405, 195, 14);
+		contentPane.add(lblNewLabel);
+		
+		JLabel lblMaterialAnalysis = new JLabel("Material Analysis");
+		lblMaterialAnalysis.setBounds(239, 405, 202, 14);
+		contentPane.add(lblMaterialAnalysis);
+		
+		JLabel lblCostStatistics = new JLabel("Cost Statistics");
+		lblCostStatistics.setBounds(466, 405, 189, 14);
+		contentPane.add(lblCostStatistics);
+		
+		JLabel lblMixChoices = new JLabel("Mix Shutoff");
+		lblMixChoices.setBounds(731, 405, 109, 14);
+		contentPane.add(lblMixChoices);
+		
+		selectedGrade = new JTextField();
+		selectedGrade.setEditable(false);
+		selectedGrade.setBounds(0, 433, 95, 20);
+		contentPane.add(selectedGrade);
+		selectedGrade.setColumns(10);
+		String selected = (String) list.getSelectedValue();
+		
+		JLabel lblMixesToAnalyze = new JLabel("Mixes to Analyze");
+		lblMixesToAnalyze.setBounds(105, 436, 142, 14);
+		contentPane.add(lblMixesToAnalyze);
+		
+		textField_2 = new JTextField();
+		textField_2.setBounds(221, 433, 91, 20);
+		contentPane.add(textField_2);
+		textField_2.setColumns(6);
+		
+		JLabel lblMixRants = new JLabel("Mix Ranks");
+		lblMixRants.setBounds(352, 436, 150, 14);
+		contentPane.add(lblMixRants);
+		
+		JLabel lblMixesToAnalyze_1 = new JLabel("Mixes to Analyze");
+		lblMixesToAnalyze_1.setBounds(454, 436, 225, 14);
+		contentPane.add(lblMixesToAnalyze_1);
+		
+		JLabel lblCostChoices = new JLabel("Cost Choices");
+		lblCostChoices.setBounds(560, 436, 185, 14);
+		contentPane.add(lblCostChoices);
+		
+		JLabel lblMixRanks = new JLabel("Mix Ranks");
+		lblMixRanks.setBounds(673, 436, 150, 14);
+		contentPane.add(lblMixRanks);
+		
+		JLabel lblNewLabel_1 = new JLabel("Max Mixes");
+		lblNewLabel_1.setBounds(17, 462, 184, 14);
+		contentPane.add(lblNewLabel_1);
+		
+		JTextPane textPane = new JTextPane();
+		textPane.setBounds(317, 458, 124, 137);
+		contentPane.add(textPane);
+		
+		textField_3 = new JTextField();
+		textField_3.setBounds(451, 459, 94, 20);
+		contentPane.add(textField_3);
+		textField_3.setColumns(10);
+		
+		JRadioButton rdbtnNewRadioButton = new JRadioButton("One Grade");
+		rdbtnNewRadioButton.setBounds(551, 457, 104, 23);
+		contentPane.add(rdbtnNewRadioButton);
+		
+		JTextPane textPane_1 = new JTextPane();
+		textPane_1.setBounds(658, 458, 106, 137);
+		contentPane.add(textPane_1);
+		
+		textField_1 = new JTextField();
+		textField_1.setBounds(0, 487, 95, 20);
+		contentPane.add(textField_1);
+		textField_1.setColumns(10);
+		
+		JButton btnAnalyze = new JButton("Analyze");
+		btnAnalyze.setBounds(221, 486, 95, 23);
+		contentPane.add(btnAnalyze);
+		
+		JRadioButton rdbtnNewRadioButton_1 = new JRadioButton("All Grades");
+		rdbtnNewRadioButton_1.setBounds(553, 486, 192, 23);
+		contentPane.add(rdbtnNewRadioButton_1);
+		
+		JButton btnNewButton = new JButton("Get Costs");
+		btnNewButton.setBounds(454, 514, 91, 23);
+		contentPane.add(btnNewButton);
+		
+		JRadioButton rdbtnNewRadioButton_2 = new JRadioButton("Selected Mix");
+		rdbtnNewRadioButton_2.setBounds(553, 514, 211, 23);
+		contentPane.add(rdbtnNewRadioButton_2);
+		
+		JRadioButton rdbtnNewRadioButton_3 = new JRadioButton("Every Mix");
+		rdbtnNewRadioButton_3.setBounds(553, 540, 192, 23);
+		contentPane.add(rdbtnNewRadioButton_3);
+		
+		JButton btnNewButton_1 = new JButton("Clear");
+		btnNewButton_1.setBounds(783, 453, 89, 23);
+		contentPane.add(btnNewButton_1);
+		
+		JButton btnNewButton_2 = new JButton("Shut Off");
+		btnNewButton_2.setBounds(783, 486, 89, 23);
+		contentPane.add(btnNewButton_2);
+		
+		JButton btnNewButton_3 = new JButton("Clear All");
+		btnNewButton_3.setBounds(783, 514, 89, 23);
+		contentPane.add(btnNewButton_3);
+		
+		JButton btnNewButton_4 = new JButton("Apply");
+		btnNewButton_4.setBounds(783, 548, 89, 23);
+		contentPane.add(btnNewButton_4);
+		
+		JTextPane textPane_2 = new JTextPane();
+		textPane_2.setEditable(false);
+		textPane_2.setBounds(120, 11, 762, 363);
+		contentPane.add(textPane_2);
+		
+		JEditorPane editorPane = new JEditorPane();
+		editorPane.setEditable(false);
+		editorPane.setBounds(4, 21, 106, 373);
+		contentPane.add(editorPane);
+		
+		JLabel lblGrades = new JLabel("Grades");
+		lblGrades.setBounds(33, 0, 46, 14);
+		contentPane.add(lblGrades);
+		
+		JScrollPane scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(30, 184, 124, -137);
+		contentPane.add(scrollPane_1);
+		
+		JScrollBar scrollBar = new JScrollBar();
+		scrollBar.setBounds(887, 11, 17, 380);
+		contentPane.add(scrollBar);
+		
+		JScrollBar scrollBar_1 = new JScrollBar();
+		scrollBar_1.setOrientation(JScrollBar.HORIZONTAL);
+		scrollBar_1.setBounds(120, 373, 762, 18);
+		contentPane.add(scrollBar_1);
+	}
+}

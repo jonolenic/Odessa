@@ -1,0 +1,286 @@
+package odessaInterface;
+
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+import javax.swing.JButton;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Writer;
+
+
+public class ProdCost extends JFrame {
+
+	private JPanel contentPane;
+	private JTextField power;
+	private JTextField oxygen;
+	private JTextField time;
+	private JTextField textField_3;
+	private JTextField textField_4;
+	private JTextField textField_5;
+	private JTextField textField_6;
+	private JTextField textField_7;
+	private JTextField textField_8;
+	
+
+
+	private double mixPower;
+	private double mixOxygen;
+	private double mixTapWgt;
+	private double mixTime;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					ProdCost frame = new ProdCost();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public ProdCost() {
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 308, 367);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
+		
+		JLabel lblNewLabel = new JLabel("Cost");
+		lblNewLabel.setBounds(10, 11, 46, 14);
+		contentPane.add(lblNewLabel);
+		
+		JLabel lblKwhOfElectricity = new JLabel("KWH of Electricity");
+		lblKwhOfElectricity.setBounds(34, 36, 133, 14);
+		contentPane.add(lblKwhOfElectricity);
+		
+		JLabel lblNewLabel_1 = new JLabel("Cubic Feet of Oxygen");
+		lblNewLabel_1.setBounds(34, 61, 133, 14);
+		contentPane.add(lblNewLabel_1);
+		
+		JLabel lblMinuteOfFurnace = new JLabel("Minute of Furnace Time");
+		lblMinuteOfFurnace.setBounds(34, 86, 133, 14);
+		contentPane.add(lblMinuteOfFurnace);
+		
+		power = new JTextField();
+		power.setText("0.04008");
+		power.setEditable(false);
+		power.setBounds(177, 33, 86, 20);
+		contentPane.add(power);
+		power.setColumns(10);
+		
+		oxygen = new JTextField();
+		oxygen.setText("0.0155");
+		oxygen.setEditable(false);
+		oxygen.setBounds(177, 58, 86, 20);
+		contentPane.add(oxygen);
+		oxygen.setColumns(10);
+		
+		time = new JTextField();
+		time.setText("51.01");
+		time.setEditable(false);
+		time.setBounds(177, 83, 86, 20);
+		contentPane.add(time);
+		time.setColumns(10);
+		
+		try {
+			File file = new File("files/testcosts.txt");
+			FileReader fileReader = new FileReader(file);
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+			StringBuffer stringBuffer = new StringBuffer();
+			
+			String line;
+			line = bufferedReader.readLine();
+			stringBuffer.append(line);
+			mixPower = Double.parseDouble(line);
+			power.setText(line);
+			stringBuffer.append("\n");
+			line = bufferedReader.readLine();
+			stringBuffer.append(line);
+			mixOxygen = Double.parseDouble(line);
+			oxygen.setText(line);
+			stringBuffer.append("\n");
+			line = bufferedReader.readLine();
+			stringBuffer.append(line);
+			mixTime = Double.parseDouble(line);
+			time.setText(line);
+			stringBuffer.append("\n");
+			fileReader.close();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+		JLabel lblCostPer = new JLabel("Cost / 1% Yield for Grades");
+		lblCostPer.setBounds(10, 111, 159, 14);
+		contentPane.add(lblCostPer);
+		
+		JLabel lblNewLabel_2 = new JLabel("RGO");
+		lblNewLabel_2.setBounds(34, 136, 78, 14);
+		contentPane.add(lblNewLabel_2);
+		
+		JLabel lblThc = new JLabel("TCH");
+		lblThc.setBounds(34, 161, 78, 14);
+		contentPane.add(lblThc);
+		
+		JLabel lblCrno = new JLabel("CRNO");
+		lblCrno.setBounds(34, 186, 78, 14);
+		contentPane.add(lblCrno);
+		
+		JLabel lblChrome = new JLabel("CHROME");
+		lblChrome.setBounds(34, 211, 78, 14);
+		contentPane.add(lblChrome);
+		
+		JLabel lblCrni = new JLabel("CRNI");
+		lblCrni.setBounds(34, 236, 78, 14);
+		contentPane.add(lblCrni);
+		
+		JLabel lblCarbon = new JLabel("CARBON");
+		lblCarbon.setBounds(34, 261, 78, 14);
+		contentPane.add(lblCarbon);
+		
+		JButton btnUpdate = new JButton("Update");
+		btnUpdate.setBounds(10, 295, 89, 23);
+		contentPane.add(btnUpdate);
+        btnUpdate.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                update();
+            }
+        });
+		
+		JButton btnReset = new JButton("Reset");
+		btnReset.setBounds(149, 295, 89, 23);
+		contentPane.add(btnReset);
+        btnReset.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                reset();
+            }
+        });
+		
+		textField_3 = new JTextField();
+		textField_3.setBounds(122, 133, 86, 20);
+		contentPane.add(textField_3);
+		textField_3.setColumns(10);
+		
+		textField_4 = new JTextField();
+		textField_4.setBounds(122, 158, 86, 20);
+		contentPane.add(textField_4);
+		textField_4.setColumns(10);
+		
+		textField_5 = new JTextField();
+		textField_5.setBounds(122, 183, 86, 20);
+		contentPane.add(textField_5);
+		textField_5.setColumns(10);
+		
+		textField_6 = new JTextField();
+		textField_6.setBounds(122, 208, 86, 20);
+		contentPane.add(textField_6);
+		textField_6.setColumns(10);
+		
+		textField_7 = new JTextField();
+		textField_7.setBounds(122, 233, 86, 20);
+		contentPane.add(textField_7);
+		textField_7.setColumns(10);
+		
+		textField_8 = new JTextField();
+		textField_8.setBounds(122, 258, 86, 20);
+		contentPane.add(textField_8);
+		textField_8.setColumns(10);
+	}
+	private void update() {
+		System.out.println("Update");
+		try {
+            PrintWriter w = new PrintWriter("files\testcosts.txt");
+            w.write(power.getText() + "\r\n");
+            w.write(oxygen.getText() + "\r\n");
+            w.write(time.getText() + "\r\n");
+            w.write(textField_3.getText() + "\r\n");
+            w.write(textField_4.getText() + "\r\n");
+            w.write(textField_5.getText() + "\r\n");
+            w.write(textField_6.getText() + "\r\n");
+            w.write(textField_7.getText() + "\r\n");
+            w.write(textField_8.getText() + "\r\n");
+            w.close();
+        } catch (IOException e) {
+            System.err.println("Problem writing to the file testcosts.txt");
+        }
+	}
+	
+	private void reset() {
+		System.out.println("Reset");
+		try {
+            PrintWriter w = new PrintWriter("files\testcosts.txt");
+            w.write("0.04008" + "\r\n");
+            w.write("0.0155" + "\r\n");
+            w.write("51.01" + "\r\n");
+            w.write("0.0" + "\r\n");
+            w.write("0.0" + "\r\n");
+            w.write("0.0" + "\r\n");
+            w.write("0.0" + "\r\n");
+            w.write("0.0" + "\r\n");
+            w.write("0.0" + "\r\n");
+            w.close();
+        } catch (IOException e) {
+            System.err.println("Problem writing to the file testcosts.txt");
+        }
+	}
+	
+
+	public double getMixPower() {
+		return mixPower;
+	}
+
+	public void setMixPower(double mixPower) {
+		this.mixPower = mixPower;
+	}
+
+	public double getMixOxygen() {
+		return mixOxygen;
+	}
+
+	public void setMixOxygen(double mixOxygen) {
+		this.mixOxygen = mixOxygen;
+	}
+
+	public double getMixTapWgt() {
+		return mixTapWgt;
+	}
+
+	public void setMixTapWgt(double mixTapWgt) {
+		this.mixTapWgt = mixTapWgt;
+	}
+
+	public double getMixTime() {
+		return mixTime;
+	}
+
+	public void setMixTime(double mixTime) {
+		this.mixTime = mixTime;
+	}
+}

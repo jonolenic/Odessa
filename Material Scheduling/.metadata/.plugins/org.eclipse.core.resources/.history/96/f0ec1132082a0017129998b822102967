@@ -1,0 +1,81 @@
+package odessaInterface;
+
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.JEditorPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.JScrollPane;
+import javax.swing.JButton;
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+
+public class MainPrism extends JFrame {
+
+	private JPanel contentPane;
+	private JTable table;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					MainPrism frame = new MainPrism();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public MainPrism() {
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 483, 367);
+		
+		JMenuBar menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
+		
+		table = new JTable();
+		table.setBounds(34, 48, 391, 99);
+		contentPane.add(table);
+		table.setModel(new DefaultTableModel(
+			new Object[][] {
+				{null, null, null, null, null},
+			},
+			new String[] {
+				"", "", "", "", ""
+			}
+		));
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(102, 190, 72, -62);
+		contentPane.add(scrollPane);
+		
+		JEditorPane editorPane = new JEditorPane();
+		editorPane.setEditable(false);
+		editorPane.setBounds(34, 48, 391, 216);
+		contentPane.add(editorPane);
+		
+		JButton btnEdit = new JButton("Edit");
+		btnEdit.setBounds(89, 275, 89, 23);
+		contentPane.add(btnEdit);
+		
+		JButton btnCancel = new JButton("Cancel");
+		btnCancel.setBounds(261, 275, 89, 23);
+		contentPane.add(btnCancel);
+	}
+}

@@ -1,0 +1,20 @@
+package odessaInterface;
+
+import javax.swing.JFrame;
+import javax.swing.JTextPane;
+import javax.swing.JScrollBar;
+
+public class ExeStatus extends JFrame {
+	public ExeStatus() {
+		getContentPane().setLayout(null);
+		
+		JTextPane textPane = new JTextPane();
+		textPane.setText("");
+		textPane.setBounds(0, 0, 711, 515);
+		getContentPane().add(textPane);
+		
+		JScrollBar scrollBar = new JScrollBar();
+		scrollBar.setBounds(715, 0, 17, 526);
+		getContentPane().add(scrollBar);
+	}
+}

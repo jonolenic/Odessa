@@ -1,0 +1,97 @@
+package test;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Date;
+
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+
+import grades.Grade;
+import grades.TagMaterial;
+import grades.TagMaterialList;
+import grades.TagOption;
+import inventory.Inventory;
+import market.Market;
+import odessaInterface.ExeStatus;
+import recipes.*;
+
+
+public class consoleTest {
+	static RecipeMaterialList recipe = new RecipeMaterialList();
+
+	
+	/* 
+	 * This function adds a new grade, its cost, and its number of heats to a linked list.
+	 */
+	public static void updateTotal(String gradeFile, double heatCost, int mixTest) {
+		recipe.addItem(gradeFile, heatCost, mixTest);
+	}
+	
+	/*
+	 * This function displays the final results of the program to the user. Each grade, its
+	 * number of heats, and its final cost are displayed, and the total cost for all grades 
+	 * is calculated and displayed.
+	 */
+	public static void printResults(int num) {
+		double finalCost = 0;
+		ExeStatus console = InputTest.getConsole();
+		Document doc = InputTest.getConsole().getText().getDocument();
+		Date date = new Date();
+		String filename = "files/logFile.txt";
+		
+		System.out.println("********************************");
+		try {
+			console.getText().getDocument().insertString(doc.getLength(), "\n\n********************************\n", null);
+		   } catch(BadLocationException exc) {
+			      exc.printStackTrace();
+			   }
+		for (int i = 0; i < num; i++) {
+			System.out.println("The total cost for " + recipe.testHeatNum(i) + " heat(s) of grade " + recipe.testGradeNum(i) + " is $" + recipe.testGradeCost(i));
+			try {
+				console.getText().getDocument().insertString(doc.getLength(), "The total cost for " + recipe.testHeatNum(i) + " heat(s) of grade " + recipe.testGradeNum(i) + " is $" + recipe.testGradeCost(i) + "\n", null);
+			   } catch(BadLocationException exc) {
+				      exc.printStackTrace();
+				   }
+			finalCost = finalCost + recipe.testGradeCost(i);
+		}
+		System.out.println("********************************");
+		System.out.println("The final cost for this order is $" + finalCost);
+		try {
+			console.getText().getDocument().insertString(doc.getLength(), "********************************\n" + "The final cost for this order is $" + finalCost, null);
+		   } catch(BadLocationException exc) {
+			      exc.printStackTrace();
+			   }
+		try {
+			console.getText().getDocument().insertString(doc.getLength(), "\nTime run: " + date, null);
+		   } catch(BadLocationException exc) {
+			      exc.printStackTrace();
+			   }
+		
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
+
+			String content = console.getText().getText();
+
+			bw.write(content);
+
+			// no need to close it.
+			//bw.close();
+
+			System.out.println("\nDone");
+
+		} catch (IOException e) {
+
+			e.printStackTrace();
+
+		}
+
+	}
+		
+		
+		
+		
+	}
+
+

@@ -1,0 +1,75 @@
+package market;
+
+import java.util.LinkedList;
+
+import inventory.InventoryMaterial;
+import market.MarketMaterial;;
+
+
+//Market list
+public class Market {
+
+	private LinkedList<MarketMaterial> marketList;		
+		
+			
+	public Market() {
+		this.marketList = new LinkedList<MarketMaterial>();
+	}
+
+
+	
+	//Adds a new material to inventory with quantity and cost
+	public void addItem(double matNum, double cost) {
+
+		MarketMaterial newMaterial = new MarketMaterial();
+
+		newMaterial.setCost(cost);
+		newMaterial.setMatNum(matNum);
+		
+		marketList.addLast(newMaterial);
+		
+	}
+	
+	public void addItem(double matNum, String description, String scrap, String category, double cost, double tolerance) {
+		
+		MarketMaterial newMaterial = new MarketMaterial();
+		
+		newMaterial.setMatNum(matNum);
+		newMaterial.setDescription(description);
+		newMaterial.setScrap(scrap);
+		newMaterial.setCategory(category);
+		newMaterial.setCost(cost);
+		newMaterial.setTolerance(tolerance);
+		
+		marketList.add(newMaterial);
+}
+
+	
+	public double passCost(int index) {
+		return marketList.get(index).getCost() * 2;
+	}
+	
+	
+
+	public void display() {
+
+		for(Object o: marketList){
+			o.toString();
+
+		}
+
+	}
+
+
+
+
+	
+
+
+	
+	
+	
+	
+	
+
+}

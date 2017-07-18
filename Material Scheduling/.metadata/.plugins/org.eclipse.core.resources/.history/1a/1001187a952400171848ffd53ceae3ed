@@ -1,0 +1,129 @@
+package processing;
+
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.apache.poi.ss.usermodel.Row;
+import java.io.File;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import grades.*;
+
+import doublylinkedlist.*;
+
+//  main for converting Excel files
+
+//  if import errors:
+//  right click Data Structures -> Build Path -> Configure Build Path -> Add External Jars
+//  Add poi-3.15.jar, poi-ooxml-3.15.jar, poi-ooxml-schemas-3.15.jar, xmlbeans-2.6.0.jar, log4j-1.2.17.jar, commons-codec.1.10.jar,
+//  commons-collections4-4.1.jar, commons-logging-1.2.jar;
+
+
+public class ReadExcel {
+	
+	
+	public static Object[] getGradeNums() throws IOException{
+		   
+			File directory = new File("./");
+		    //System.out.println(directory.getAbsolutePath());
+		    
+			final File folder = new File("./ExcelFiles");
+			File[] listOfFiles = folder.listFiles();
+			
+			LinkedList gradeList = new LinkedList();
+			
+			
+			for(int i = 0; i < listOfFiles.length; i++) {
+				FileInputStream file = new FileInputStream((listOfFiles[i]));
+				if (listOfFiles[i].getName().contains("(DAT)")){
+					String str = listOfFiles[i].toString(); 
+					//System.out.println(str);
+					String[] split = str.split("");
+					String gradeNum = split[13]+split[14]+split[15]+split[16]+split[17];
+					gradeList.add(gradeNum);
+				}
+				
+			}
+			
+			Object[] gradeArray = gradeList.toArray();
+			
+			
+			/*
+			Object[] gradelist2 = gradeList.toArray();
+			for(int i = 0; i < gradelist2.length; i++) {
+				
+			
+				//FileInputStream file = new FileInputStream((String) (gradelist2[i]));
+				System.out.println(gradelist2[i]);
+		
+			}
+			*/
+			
+			return gradeArray;
+			
+	}
+	
+	public static Grade[] getGrades() throws IOException{
+		   
+		File directory = new File("./");
+	    //System.out.println(directory.getAbsolutePath());
+	    
+		final File folder = new File("./ExcelFiles");
+		File[] listOfFiles = folder.listFiles();
+		
+		LinkedList gradeList = new LinkedList();
+		
+		
+		for(int i = 0; i < listOfFiles.length; i++) {
+			FileInputStream file = new FileInputStream((listOfFiles[i]));
+			if (listOfFiles[i].getName().contains("(DAT)")){
+				String str = listOfFiles[i].toString(); 
+				//System.out.println(str);
+				String[] split = str.split("");
+				String gradeNum = split[13]+split[14]+split[15]+split[16]+split[17];
+				gradeList.add(gradeNum);
+			}
+			
+		}
+		
+		Object[] gradeArray = gradeList.toArray();
+		
+		Grade[] listOfGrades = new Grade[listOfFiles.length];
+		
+		for (int i = 0; i < gradeList.size(); i++) {
+			listOfGrades[i] = new Grade(gradeList.get(i).toString());
+			try {
+				listOfGrades[i].loadGrades(gradeList.get(i).toString());
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		/*
+		Object[] gradelist2 = gradeList.toArray();
+		for(int i = 0; i < gradelist2.length; i++) {
+			
+		
+			//FileInputStream file = new FileInputStream((String) (gradelist2[i]));
+			System.out.println(gradelist2[i]);
+	
+		}
+		*/
+		
+		return listOfGrades;
+		
+}
+}
+
+	
+

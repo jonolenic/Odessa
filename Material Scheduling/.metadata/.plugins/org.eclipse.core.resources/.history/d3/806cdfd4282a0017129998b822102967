@@ -1,0 +1,49 @@
+package recipes;
+
+import java.util.LinkedList;
+
+
+//List that contains tag parameters and a RecipeOptionList
+
+public class Recipe {
+	
+	private int recipeTag;
+	//private RecipeOption recipeOption;
+	private LinkedList<Object> recipeList;
+	
+	
+	public Recipe(){
+		
+		//this.recipeTag = recipeTag;
+		this.recipeList = new LinkedList<Object>();
+		
+	}
+	
+	public void addItem(Object recipeOption){
+		
+		recipeList.addLast(recipeOption);
+		
+	}
+	
+	
+	
+	
+	public void display() {
+		
+		System.out.println("Tag: " + recipeTag);
+		
+		try {
+			for(Object o: recipeList){
+				
+				((RecipeOption) o).display();
+							}
+		} catch (Exception e) {
+			System.out.println("empty list");
+		}
+		
+	}
+	
+	
+	
+	
+}

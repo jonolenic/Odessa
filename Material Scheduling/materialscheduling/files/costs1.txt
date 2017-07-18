@@ -1,0 +1,37 @@
+       0.04008
+        0.0155
+         51.01
+          2.39
+          2.06
+          2.35
+          3.88
+         11.84
+         0.001
+
+
+
+These are costs.  The program knows which is which.  The list is organized as
+follows:
+
+Cost per KWH of electricity
+Cost per cu.ft. of oxygen
+Cost per minute of furnace time
+Cost per 1% yield for RGO products
+Cost per 1% yield for TCH products
+Cost per 1% yield for CRNO products
+Cost per 1% yield for CHROME products
+Cost per 1% yield for CRNI products
+Cost per 1% yield for CARBON products
+
+The program will automatically read the first three into the appropriate places. 
+Then, depending on whether a 1..5 is sent in with the object constructor, one of
+the last five is read in to the appropriate place.
+
+The constructor requires a parameter from 1..5; this can also be accomplished
+by sending one of the following symbolic constants instead of a number.
+0 = UNCLASSIFIED
+1 = RGO
+2 = TCH
+3 = CRNO
+4 = CHROME
+5 = CRNI

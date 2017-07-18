@@ -1,0 +1,547 @@
+package odessaInterface;
+
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.JTextField;
+import java.awt.GridLayout;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+
+import javax.swing.JRadioButton;
+import javax.swing.JEditorPane;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JTextPane;
+import javax.swing.ListModel;
+import javax.swing.JTable;
+import javax.swing.JScrollPane;
+import javax.swing.table.DefaultTableModel;
+
+import common.structure.List;
+import grades.GetGradeInfo;
+import grades.Grade;
+import grades.TagMaterial;
+import grades.TagMaterialList;
+import grades.TagOption;
+import inventory.Inventory;
+import inventory.InventoryMaterial;
+import material.Material;
+import processing.ReadExcel;
+import calculations.*;
+
+import java.awt.Color;
+import java.awt.Dimension;
+
+import javax.swing.border.MatteBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.JScrollBar;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
+
+/*
+ * StatReport runs mix analysis and calculations statistics. It provides the user with a list of grades,
+ * and allows them to select a mix from that grade and provide a detailed analysis of that mix: the number
+ * of materials its using, what % each material makes up of the mix, and so on. It can also report how many
+ * mixes in a given grade can be made given inventory limitations, and rank them by cost.
+ */
+@SuppressWarnings("serial")
+public class StatReportU extends JFrame {
+
+	private JPanel contentPane;
+	private JTextField selectedGrade;
+	private JTextField maxMixes;
+	@SuppressWarnings("rawtypes")
+	private JList list;
+	
+	
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					StatReportU frame = new StatReportU();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 * @throws IOException 
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public StatReportU() throws IOException {
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 920, 633);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
+		
+		//get grade numbers for grade list
+		Object[] gradeList = ReadExcel.getGradeNums();
+		//Object[] tagNums = null;
+		
+		//build inventory
+		Inventory inventory = new Inventory();
+    	try {
+			File file = new File("files/mcode.txt");
+			FileReader fileReader = new FileReader(file);
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+			StringBuffer stringBuffer = new StringBuffer();
+			
+			// Values stored in a raw material
+			double matNum;  		
+			String description;		
+			String scrap;				
+			String category;			
+			double cost;					
+			float usage;	
+			double quantity;	
+			double tolerance;
+
+			
+			// Read in inventory and market values
+			String line;
+			line = bufferedReader.readLine();
+			stringBuffer.append(line);
+			stringBuffer.append("\n");
+			while ((line = bufferedReader.readLine()) != null) {
+				stringBuffer.append(line);
+				matNum = Integer.parseInt(line);
+				stringBuffer.append("\n");
+				line = bufferedReader.readLine();
+				stringBuffer.append(line);
+				description = line;
+				stringBuffer.append("\n");
+				line = bufferedReader.readLine();
+				stringBuffer.append(line);
+				scrap = line;
+				stringBuffer.append("\n");
+				line = bufferedReader.readLine();
+				stringBuffer.append(line);
+				category = line;
+				stringBuffer.append("\n");
+				line = bufferedReader.readLine();
+				stringBuffer.append(line);
+				cost = Double.parseDouble(line);
+				stringBuffer.append("\n");
+				line = bufferedReader.readLine();
+				stringBuffer.append(line);
+				quantity = Double.parseDouble(line);
+				stringBuffer.append("\n");
+				line = bufferedReader.readLine();
+				stringBuffer.append(line);
+				usage = Float.parseFloat(line);
+				stringBuffer.append("\n");
+				line = bufferedReader.readLine();
+				stringBuffer.append(line);
+				tolerance = Double.parseDouble(line);
+				stringBuffer.append("\n");
+				
+				inventory.addInvItem(matNum, description, scrap, category, cost, quantity, usage, tolerance);
+				
+			}
+			fileReader.close();
+			System.out.println("\n\n");
+			
+			
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+		
+		
+		
+		JLabel lblNewLabel = new JLabel("Selected Grade");
+		lblNewLabel.setBounds(28, 431, 95, 14);
+		contentPane.add(lblNewLabel);
+		
+		selectedGrade = new JTextField();
+		selectedGrade.setEditable(false);
+		selectedGrade.setBounds(28, 456, 95, 20);
+		contentPane.add(selectedGrade);
+		selectedGrade.setColumns(10);
+		
+		JLabel lblMixRants = new JLabel("Mix Ranks");
+		lblMixRants.setBounds(172, 405, 150, 14);
+		contentPane.add(lblMixRants);
+		
+		JLabel lblCostChoices = new JLabel("Cost Choices");
+		lblCostChoices.setBounds(353, 417, 76, 14);
+		contentPane.add(lblCostChoices);
+		
+		JLabel lblMixRanks = new JLabel("Mix Ranks by Cost");
+		lblMixRanks.setBounds(746, 405, 106, 14);
+		contentPane.add(lblMixRanks);
+		
+		JLabel lblNewLabel_1 = new JLabel("Number Of Mixes");
+		lblNewLabel_1.setBounds(28, 497, 124, 14);
+		contentPane.add(lblNewLabel_1);
+		
+		JScrollPane scrollPane_2 = new JScrollPane();
+		scrollPane_2.setBounds(172, 435, 124, 137);
+		contentPane.add(scrollPane_2);
+		
+		JList mixRanks1 = new JList();
+		scrollPane_2.setViewportView(mixRanks1);
+		
+		JScrollPane scrollPane_3 = new JScrollPane();
+		scrollPane_3.setBounds(746, 435, 106, 137);
+		contentPane.add(scrollPane_3);
+		
+		JList mixRanks2 = new JList();
+		scrollPane_3.setViewportView(mixRanks2);
+		
+		maxMixes = new JTextField();
+		maxMixes.setEditable(false);
+		maxMixes.setBounds(28, 522, 95, 20);
+		contentPane.add(maxMixes);
+		maxMixes.setColumns(10);
+		
+		JButton btnGetCosts = new JButton("Get Costs");
+		btnGetCosts.setBounds(543, 432, 130, 23);
+		contentPane.add(btnGetCosts);
+		btnGetCosts.setEnabled(false);
+		
+		JRadioButton selectMix = new JRadioButton("Selected Mix");
+		selectMix.setBounds(353, 455, 130, 23);
+		contentPane.add(selectMix);
+		
+		JRadioButton everyMix = new JRadioButton("Every Mix");
+		everyMix.setBounds(353, 500, 95, 23);
+		contentPane.add(everyMix);
+		
+		
+		
+		ButtonGroup group2 = new ButtonGroup();
+		group2.add(selectMix);
+		group2.add(everyMix);
+		
+		
+		JButton btnNewButton_1 = new JButton("Clear");
+		btnNewButton_1.setBounds(545, 486, 128, 23);
+		contentPane.add(btnNewButton_1);
+		
+		JLabel lblGrades = new JLabel("Grades");
+		lblGrades.setBounds(26, 0, 46, 14);
+		contentPane.add(lblGrades);
+		list = new JList(gradeList);
+		contentPane.add(list);
+		list.setBounds(6, 25, 85, 373);
+		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		list.setBackground(Color.WHITE);
+		list.setBorder(new MatteBorder(1, 1, 1, 1, (Color) new Color(0, 0, 0)));
+		list.setForeground(Color.BLACK);
+		
+		JScrollPane scrollPane = new JScrollPane(list);
+		scrollPane.setBounds(6, 21, 104, 375);
+		contentPane.add(scrollPane);
+		
+		JScrollPane scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(147, 21, 705, 373);
+		contentPane.add(scrollPane_1);
+		
+		JTextPane stats = new JTextPane();
+		scrollPane_1.setViewportView(stats);
+		
+		
+		
+		
+		
+		
+		
+		//Event listener for selection of grade number
+		list.addListSelectionListener(new ListSelectionListener() {
+
+	        @Override
+	        public void valueChanged(ListSelectionEvent arg0) {
+	        	//fill in selected grade box
+	        	selectedGrade.setText(list.getSelectedValue().toString());
+	        	//create create based on number and populate from specified file
+	        	Grade selGrade = new Grade(list.getSelectedValue().toString());
+	        	try {
+					selGrade.loadGrades(list.getSelectedValue().toString());
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	        	
+	        	//create tagOptions list
+	        	LinkedList<TagOption> tagOptions = selGrade.getTagList();
+	        	
+	        	//create list list of tagOption numbers
+	        	LinkedList tagNums = new LinkedList();
+	        	for(Object o : tagOptions){
+	        		TagOption tagOption = (TagOption) o;
+	        		String tagNum = String.valueOf((int)tagOption.getTagNum());
+	        		tagNums.add(tagNum);		
+	        		
+	        	}
+	        	
+	        	Object[] tagNumArr = tagNums.toArray();
+	    		mixRanks1.setListData(tagNumArr);
+	        	
+	        	
+	        	
+	        	//fill in max mixes box
+	        	String numMixes = String.valueOf(tagOptions.size());
+	        	maxMixes.setText(numMixes);
+	        	btnGetCosts.setEnabled(true);
+	        	
+	        	
+	        	
+	        }
+	    });
+		
+		
+		
+		//Get costs button handler
+		btnGetCosts.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent c) {       	
+            	
+            	int invSize = 900;
+            	int totalMats = 0;     
+            	int viabilityCheck = 0;
+            	int gradeSize = 0;
+            	
+            	double[] matTrack = new double[invSize];
+            	for(int i=0; i < matTrack.length; i++){
+            		matTrack[i]=0.0;
+            	}
+            	//ArrayList to hold tagOptions and cost for Mix ranks by cost
+        		ArrayList<TagOption> rankCost = new ArrayList();
+        		ArrayList<TagOption> viableRank = new ArrayList();
+            	
+        		//build grade
+        		Grade grade = new Grade((String) list.getSelectedValue());
+        		try {
+					grade.loadGrades((String) list.getSelectedValue());
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        		TagOption[] sortedMixes = CostCalculations.findViableMixes(grade);
+            	//Statistics for every mix
+            	if(everyMix.isSelected()){            		
+            		
+
+            		
+            		//Get list of tagOptions
+            		ListModel tagOptions = mixRanks1.getModel();            		            		   		
+            		
+            		for(int i=0; i < tagOptions.getSize(); i++){
+            			Object o =  tagOptions.getElementAt(i);            		
+            			double mixCost = 0;            		    
+            		    double cost = 0;
+            		    double matNum = 0;
+            		    double quan = 0;
+            		
+	            		//build material list
+	            		TagMaterialList matList = GetGradeInfo.getMatList(grade, Double.parseDouble((String) o));
+	            		TagOption tagO = new TagOption();
+	            		tagO.setViability(true);
+	            		//iterate through objects in material list
+	            		for(Object o1 : matList.getTagMaterialList()){	            			
+	           	            			
+	            			//get material in tagList
+	            			TagMaterial mat = (TagMaterial) o1;
+	            			matNum = mat.getMatNum();
+	            			quan = mat.getQuantity()/1000;
+	            			
+	            			
+	            			//get material cost in inventory 			
+	            			for(Object material : inventory.getInventoryList()){
+	            				InventoryMaterial m =  (InventoryMaterial) material;
+	        					//System.out.println(m.getCost());
+	        					if(m.getMatNum() == matNum){
+	        						cost = m.getCost()*quan;	        						
+	        						mixCost+= cost;
+	        						matTrack[(int) matNum] = quan;
+	        						
+	        						if(mat.getQuantity() > m.getQuantity()){
+	    	            				tagO.setViability(false);
+	    	            				viabilityCheck++;
+	    	            				
+	    	            			}
+	        					}
+	        				}
+	            			double tagName = Double.parseDouble((String) o);	            			
+	            			tagO.setTagNum(tagName);
+	            			tagO.setCost(mixCost);
+	            			//add tag to rankCost list
+	            				            			
+	            			String line = "Material: " + matNum + "......" + "Quantity: " + quan + "......Cost: " + cost;
+							stats.setText(stats.getText() + line + "\n");
+	            			
+	            		}
+	            		rankCost.add(tagO);
+	            		if(tagO.getViability() == true){
+	            			viableRank.add(tagO);
+	            		}
+	            		
+	            		stats.setText(stats.getText()+ "Mix Number" + tagO.getTagNum() + "\n");
+	            		stats.setText(stats.getText() + "Mix Cost: " + mixCost + "\n\n");
+	            		
+	            		
+	            		
+            		}
+            		
+            		
+            	}
+            	
+            	//Selected Mix Statistics
+            	else if(selectMix.isSelected() && !(mixRanks1.isSelectionEmpty())){
+            		
+            		String selMix = (String) mixRanks1.getSelectedValue();
+            		//build grade
+            		Grade gradeSelMix = new Grade(selMix);
+            		try {
+						gradeSelMix.loadGrades((String) list.getSelectedValue());
+					} catch (ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+            		
+            		double quan = 0;
+            		double matNum = 0;
+            		double cost = 0;
+            		//build material list
+            		TagMaterialList matList = GetGradeInfo.getMatList(gradeSelMix, Double.parseDouble((String) selMix));
+            		double mixCost = 0;
+					for(Object o : matList.getTagMaterialList()){            			
+            			
+            			//get material in tagList
+            			TagMaterial mat = (TagMaterial) o;
+            			matNum = mat.getMatNum();
+            			quan = mat.getQuantity();            			
+            			
+            			//get material cost in inventory 			
+            			for(Object material : inventory.getInventoryList()){
+            				InventoryMaterial m =  (InventoryMaterial) material;
+        					//System.out.println(m.getCost());
+        					if(m.getMatNum() == matNum){
+        						cost = m.getCost() * quan;
+        						mixCost+= cost;
+        						matTrack[(int) matNum] = quan;
+        						
+        					}
+        					
+        				}      				    			
+            			String line = "Material: " + matNum + "......" + "Quantity: " + quan + "......Cost: " + cost;
+						stats.setText(stats.getText() + line + "\n");
+						
+            			
+            		}
+					
+            		stats.setText(stats.getText() + "Mix Cost: " + mixCost + "\n");             		
+            		
+            	}
+            	else if(selectMix.isSelected()){
+            		JOptionPane.showMessageDialog(null, "Please select a mix" , "Error", JOptionPane.INFORMATION_MESSAGE);
+            	}
+            	else if(!(mixRanks1.isSelectionEmpty())){
+            		JOptionPane.showMessageDialog(null, "Please select a cost option" , "Error", JOptionPane.INFORMATION_MESSAGE);
+            	}
+            	//Sort rankcost list
+            	Collections.sort(rankCost);            	
+            	
+            	//Put rankCost list into mix rank by cost
+        		LinkedList costList = new LinkedList();
+	        	/*for(Object b : rankCost){
+	        		TagOption tagOption = (TagOption) b;
+	        		String tagNum = String.valueOf((int)tagOption.getTagNum());
+	        		if (tagOption.getViability() == true) {
+	        		costList.add(tagNum);		
+	        		}
+	        		//TagOption[] mixRanks =  new TagOption[];
+	        	}*/
+	        	for (int i = sortedMixes.length; i > 0; i--) {
+	        		costList.add(sortedMixes[i].getCost());
+	        	}
+	        	
+	        	Object[] tagNumArr = costList.toArray();
+        		mixRanks2.setListData(tagNumArr);            	
+            	
+            	for(int i=0; i < matTrack.length; i++){
+            		
+        			if(matTrack[i] > 0){
+        				totalMats += matTrack[i];
+        				
+        			}        			
+        		}
+            	stats.setText(stats.getText()+ "Viable Mixes: \n");
+            	for(Object v : viableRank){
+        			TagOption via = (TagOption) v;
+        			stats.setText(stats.getText() + via.getTagNum() + "\n");	            			
+        		}
+            	
+            	
+            	stats.setText(stats.getText() +"\nTotal Material Statistics" + "\n"+ "Total Materials: " + totalMats + "\n");
+            	
+            	for(int i=0; i < matTrack.length; i++){
+            		
+        			if(matTrack[i] > 0){
+        				String out = "";
+        				String per = Double.toString((matTrack[i]/totalMats)*100);     				
+        				
+        				
+        				out = "Material Number: " + i;
+        				out+= "......Quantity: " + matTrack[i];
+        				out+= "......Percentage of Mix: " + per + "%" + "\n";
+        				stats.setText(stats.getText()+ out);
+        				
+        			}        			
+        		};
+        		
+        		;
+            	
+            	
+            	
+            }
+        });
+		
+		
+		//Event listener to clear
+		btnNewButton_1.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {       	
+            	
+            	stats.setText("");        	
+            	
+            }
+		});
+		
+		
+		
+		
+		
+	}
+}
